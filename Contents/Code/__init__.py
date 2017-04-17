@@ -69,12 +69,9 @@ def GetPlaylists(title, url, thumb='', section_code='ListVideoPlaylist'):
 
     # The playlist for most pages are contained in "Mediabock--playlist" div tags but a few shows return a playlist results list
     playlist = page.xpath('//div[@role="contentWell"]//div[contains(@class, "MediaBlock--playlist")]')
-    #if len(playlist) < 1:
-        #playlist = page.xpath('//section[contains(@class, "%s")]//div[@class="m-MediaBlock"]' %section_code)
     # If the playlist is empty or this is a section pull use alternative code
     if len(playlist) < 1 or section_code!='ListVideoPlaylist':
         playlist = page.xpath('//section[contains(@class, "%s")]//div[@class="m-MediaBlock" or contains(@class, "o-Capsule__m-MediaBlock")]' %section_code)
-
 
     for item in playlist:
         summary = item.xpath('.//span[contains(@class, "AssetInfo")]/text()')[0].strip()
