@@ -8,7 +8,8 @@ SHOWS_LIST = [
     {'title': 'Food Network', 'fullurl' : 'http://www.foodnetwork.com/videos/full-episodes.html', 'vidurl' : 'http://www.foodnetwork.com/videos.html', 'showurl' : 'http://www.foodnetwork.com/shows/a-z', 'icon' : 'food-icon.jpg'}, 
     {'title': 'DIY Network', 'fullurl' : 'http://www.diynetwork.com/shows/full-episodes', 'vidurl' : 'http://www.diynetwork.com/videos', 'showurl' : 'http://www.diynetwork.com/shows/shows-a-z', 'icon' : 'diy-icon.jpg'}, 
     {'title': 'Cooking Channel', 'fullurl' : 'http://www.cookingchanneltv.com/videos/players/full-episodes-player', 'vidurl' : 'http://www.cookingchanneltv.com/videos', 'showurl' : 'http://www.cookingchanneltv.com/shows/a-z', 'icon' : 'cook-icon.jpg'}, 
-    {'title': 'Great American Country', 'fullurl' : 'http://www.greatamericancountry.com/shows/full-episodes', 'vidurl' : 'http://www.greatamericancountry.com/videos', 'showurl' : 'http://www.greatamericancountry.com/shows/shows-a-z', 'icon' : 'gac-icon.jpg'}
+    {'title': 'Great American Country', 'fullurl' : 'http://www.greatamericancountry.com/shows/full-episodes', 'vidurl' : 'http://www.greatamericancountry.com/videos', 'showurl' : 'http://www.greatamericancountry.com/shows/shows-a-z', 'icon' : 'gac-icon.jpg'}, 
+    {'title': 'The Travel Channel', 'fullurl' : 'http://www.travelchannel.com/video/full-episodes', 'vidurl' : 'http://www.travelchannel.com/video', 'showurl' : 'http://www.travelchannel.com/shows/shows-a-z', 'icon' : 'travel-icon.jpg'}
 ]
 
 SMIL_NS = {'a': 'http://www.w3.org/2005/SMIL21/Language'}
