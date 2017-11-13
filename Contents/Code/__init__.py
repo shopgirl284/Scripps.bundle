@@ -45,8 +45,6 @@ def ShowSections(title, fulleps_url, video_url, show_url, thumb=''):
     oc.add(DirectoryObject(key = Callback(GetPlaylists, title='Full Episodes', url=fulleps_url, thumb=thumb), title='Full Episodes', thumb=thumb))
     oc.add(DirectoryObject(key = Callback(GetPlaylists, title='Videos', url=video_url, thumb=thumb), title='Videos', thumb=thumb))
     oc.add(DirectoryObject(key = Callback(Alphabet, title='All Shows', url=show_url, thumb=thumb), title='All Shows', thumb=thumb))
-    if 'Food Network' in show_title:
-        oc.add(DirectoryObject(key=Callback(GetPlaylists, title='Most-Popular Videos', url=video_url, section_code='ContentFeed', thumb=thumb), title='Most-Popular Videos', thumb=thumb))
 
     return oc
 
@@ -80,6 +78,9 @@ def GetPlaylists(title, url, thumb='', section_code='ListVideoPlaylist'):
             continue
         try: url = item.xpath('.//a/@href')[0]
         except: continue
+        url = URLFix(url)
+        if not url: 
+            continue
         # To bypass any formatting within the title we just join all the data in the title field
         title = ' '.join(item.xpath('.//span[contains(@class, "HeadlineText")]//text()')).strip()
         try: item_thumb = item.xpath('.//img/@data-src')[0]
@@ -133,6 +134,9 @@ def AllShows(char, url, thumb=''):
 
         title = show.text
         show_url = show.xpath('./@href')[0]
+        show_url = URLFix(show_url)
+        if not show_url: 
+            continue
 
         oc.add(DirectoryObject(
             key = Callback(GetVideoLinks, show_url=show_url, title=title, thumb=thumb),
@@ -159,6 +163,9 @@ def GetVideoLinks(title, show_url, thumb=''):
         if 'video' not in section_title.lower():
             continue
         section_url = item.xpath('./a/@href')[0]
+        section_url = URLFix(section_url)
+        if not section_url: 
+            continue
 
         oc.add(DirectoryObject(
             key = Callback(GetPlaylists, url=section_url, title="%s %s" %(title, section_title), thumb=thumb),
@@ -169,7 +176,12 @@ def GetVideoLinks(title, show_url, thumb=''):
         # Check for any additional links under the video navigation
         for subitem in item.xpath('./ul[@data-type="dropdown-menu"]/li'):
             sub_url = subitem.xpath('./a/@href')[0]
-            sub_title = subitem.xpath('./a/text()')[0].strip()
+            sub_url = URLFix(sub_url)
+            if not sub_url: 
+                continue
+            # There is an issue with one drop down that does not have a title
+            try: sub_title = subitem.xpath('./a/text()')[0].strip()
+            except: sub_title = 'More ' + section_title
 
             oc.add(DirectoryObject(
                 key = Callback(GetPlaylists, url=sub_url, title="%s %s" %(title, sub_title), thumb=thumb),
@@ -298,3 +310,24 @@ def PlayVideo(smil_url, resolution):
     video_url = xml.xpath('//a:switch[1]/a:video[@height="%s"]/@src' % closest, namespaces=SMIL_NS)[0]
 
     return IndirectResponse(VideoClipObject, key=video_url)
+
+####################################################################################################
+@route(PREFIX + '/urlfix')
+def URLFix(url):
+
+    #Log('the value of url of %s' %url)
+    if not url.startswith('http'):
+        fixed_url = url
+        if url.startswith('//'):
+            fixed_url = 'http:' + url
+        elif url.startswith('www'):
+            fixed_url = 'http://' + url
+        else:
+            Log('unable to fix the url of %s' %url)
+            fixed_url = None
+
+    else:
+        fixed_url = url
+    #Log('the value of fixed_url of %s' %fixed_url)
+
+    return fixed_url
