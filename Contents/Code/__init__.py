@@ -9,7 +9,7 @@ SHOWS_LIST = [
     {'title': 'DIY Network', 'fullurl' : 'http://www.diynetwork.com/shows/full-episodes', 'vidurl' : 'http://www.diynetwork.com/videos', 'showurl' : 'http://www.diynetwork.com/shows/shows-a-z', 'icon' : 'diy-icon.jpg'}, 
     {'title': 'Cooking Channel', 'fullurl' : 'http://www.cookingchanneltv.com/videos/players/full-episodes-player', 'vidurl' : 'http://www.cookingchanneltv.com/videos', 'showurl' : 'http://www.cookingchanneltv.com/shows/a-z', 'icon' : 'cook-icon.jpg'}, 
     {'title': 'Great American Country', 'fullurl' : 'http://www.greatamericancountry.com/shows/full-episodes', 'vidurl' : 'http://www.greatamericancountry.com/videos', 'showurl' : 'http://www.greatamericancountry.com/shows/shows-a-z', 'icon' : 'gac-icon.jpg'}, 
-    {'title': 'The Travel Channel', 'fullurl' : 'http://www.travelchannel.com/video/full-episodes', 'vidurl' : 'http://www.travelchannel.com/video', 'showurl' : 'http://www.travelchannel.com/shows/shows-a-z', 'icon' : 'travel-icon.jpg'}
+    {'title': 'The Travel Channel', 'fullurl' : 'http://www.travelchannel.com/shows/video/full-episodes', 'vidurl' : 'http://www.travelchannel.com/shows/video', 'showurl' : 'http://www.travelchannel.com/shows/shows-a-z', 'icon' : 'travel-icon.jpg'}
 ]
 
 SMIL_NS = {'a': 'http://www.w3.org/2005/SMIL21/Language'}
@@ -55,6 +55,7 @@ def ShowSections(title, fulleps_url, video_url, show_url, thumb=''):
 def GetPlaylists(title, url, thumb='', section_code='ListVideoPlaylist'):
 
     oc = ObjectContainer(title2=title)
+    main_title = title
     try: page = HTML.ElementFromURL(url)
     except: return ObjectContainer(header='Bad Url', message='The URL for this page is not valid')
 
@@ -67,7 +68,7 @@ def GetPlaylists(title, url, thumb='', section_code='ListVideoPlaylist'):
         oc.add(DirectoryObject(key=Callback(VideoBrowse, title=player_title, url=url), title=player_title, thumb=thumb))
 
     # The playlist for most pages are contained in "Mediabock--playlist" div tags but a few shows return a playlist results list
-    playlist = page.xpath('//div[@role="contentWell"]//div[contains(@class, "MediaBlock--playlist")]')
+    playlist = page.xpath('//div[contains(@class, "MediaBlock--playlist") or contains(@class, "m-MediaBlock--PLAYLIST")]')
     # If the playlist is empty or this is a section pull use alternative code
     if len(playlist) < 1 or section_code!='ListVideoPlaylist':
         playlist = page.xpath('//section[contains(@class, "%s")]//div[@class="m-MediaBlock" or contains(@class, "o-Capsule__m-MediaBlock")]' %section_code)
@@ -94,6 +95,16 @@ def GetPlaylists(title, url, thumb='', section_code='ListVideoPlaylist'):
             summary = summary,
             thumb = Resource.ContentsOfURLWithFallback(url=item_thumb)
         ))
+
+    # Check for and create a directory for Video Sections
+    section_list = page.xpath('//section[@data-module="video-launcher"]/header/div')
+    # Only include this section for Videos
+    if len(section_list) > 0 and main_title=='Videos':
+        for item in section_list:
+            section_title = item.xpath('.//h3/span/text()')[0]
+            section_url = item.xpath('.//a/@href')[0]
+            section_url = URLFix(section_url)
+            oc.add(DirectoryObject(key=Callback(VideoBrowse, title=section_title, url=section_url), title=section_title, thumb=thumb))
 
     # Check for and create a directory for Similar Playlists
     playlist_check = page.xpath('//section[contains(@class, "SimilarPlaylists")]//div[@class="m-MediaBlock"]')
